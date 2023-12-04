@@ -2,26 +2,20 @@ import fs from "fs";
 
 fs.readFile("input.txt", "ascii", (_, f) => {
   const buildValueFromParts = (numbers) => {
-    console.log(numbers);
     return Number.parseInt(numbers.reduce((v, c) => v + c));
   };
-
+  const adjLocations = [
+    [-1, 0],
+    [0, -1],
+    [-1, -1],
+    [-1, 1],
+    [1, -1],
+    [1, 1],
+    [1, 0],
+    [0, 1],
+  ];
   const translate = ([x, y], [dx, dy]) => [x + dx, y + dy];
   const isPartNumber = ({ x, y, value }, partMarkers) => {
-    const adjLocations = [
-      [-1, 0],
-      [0, -1],
-      [-1, -1],
-      [-1, 1],
-      [1, -1],
-      [1, 1],
-      [1, 0],
-      [0, 1],
-    ];
-    const [pmMaxX, pmMaxY] = partMarkers.reduce(
-      ([mx, my], { px, py }) => [px > mx ? px : mx, py > my ? py : my],
-      [0, 0]
-    );
     const digitLength = value.toString().length;
     const xRange = [...Array(digitLength).keys()];
     const adjacentSymbols = xRange
@@ -88,11 +82,35 @@ fs.readFile("input.txt", "ascii", (_, f) => {
   const numbers = partGrid.flatMap((a) => a.numRefs).flat();
   const symbols = partGrid.flatMap((a) => a.symbolRefs).flat();
 
-  const partA = numbers
-    .filter((n) => isPartNumber(n, symbols))
-    .reduce((s, c) => {
-      return s + c.value;
-    }, 0n);
+  const partNumbers = numbers.filter((n) => isPartNumber(n, symbols));
 
+  const getSymbolAdjacents = (symbol, numbers) => {
+    const result = numbers.filter(({ x, y, value }) =>
+      [...Array(value.toString().length).keys()]
+        .map((ix) => [x + ix, y])
+        .some(([x1, y1]) =>
+          adjLocations
+            .map(([dx, dy]) => [x1 + dx, y1 + dy])
+            .some(([x2, y2]) => symbol.x === x2 && symbol.y === y2)
+        )
+    );
+    console.log(result);
+    return result;
+  };
+
+  const partA = partNumbers.reduce((s, c) => {
+    return s + c.value;
+  }, 0);
+
+  const partB = symbols
+    .filter((s) => s.value === "*")
+    .map((s) => getSymbolAdjacents(s, numbers))
+    .filter((c) => {
+      console.log(c);
+      return c.length === 2;
+    })
+    .map(([r1, r2]) => r1.value * r2.value)
+    .reduce((t, c) => c + t, 0);
+  console.log(partB);
   console.log(partA);
 });
