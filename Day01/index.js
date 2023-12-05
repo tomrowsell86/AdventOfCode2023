@@ -2,7 +2,6 @@ import fs from "fs";
 
 fs.readFile("input.txt", "utf-8", (_, f) => {
   const numberMap = new Map([
-    ["zero", 0],
     ["one", 1],
     ["two", 2],
     ["three", 3],
@@ -44,25 +43,33 @@ fs.readFile("input.txt", "utf-8", (_, f) => {
     .split("\n")
     .map((l) => {
       const numbers = numberIndexes(l);
-      console.log(numbers);
-      return Array.from(numberMap.keys())
-        .map((n) => {
-          return {
-            value: numberMap.get(n),
-            position: l.indexOf(n,0),
-          };
+      const nums = Array.from(numberMap.keys())
+        .map((n) => [n,numberMap.get(n)])
+        .map(([ntext,n]) => {
+          let indexN =  l.indexOf(ntext);
+          let matches = []
+          while(indexN !== -1){
+           matches.push({position : indexN, value: n})
+           indexN = l.indexOf(ntext,indexN + 1)
+          }
+          return matches;
+
         })
-        .filter(({ position }) => position >= 0)
+        .filter(({ length }) => length >= 0)
+        .flat()
         .concat(numbers)
+        
         .sort((a, b) =>
           a.position < b.position ? -1 : a.position > b.position ? 1 : 0
         )
         .reduce(
           (total, curr, i, { length }) =>
             (i === 0 ? curr.value * 10 : i === length - 1 ? curr.value : 0) +
-            (length === 1 ? curr.value : 0) +
-            total
+            (length === 1 ? curr.value : 0) + total
+            
         ,0);
+        console.log(nums)
+        return nums
     })
     .reduce((total, c) => total + c, 0);
 
