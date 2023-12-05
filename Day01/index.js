@@ -33,9 +33,6 @@ fs.readFile("input.txt", "utf-8", (_, f) => {
           0
         )
     )
-    .map((c) => {
-      return c;
-    })
     .reduce((t, c) => t + c, 0);
   console.log(`Part A : ${partA}`);
 
