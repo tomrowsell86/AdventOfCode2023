@@ -1,5 +1,10 @@
 import fs from "fs";
 fs.readFile("input.txt", "utf-8", (_, f) => {
+  function getDistances(r) {
+    return [...Array(r.time - 1).keys()]
+      .filter((_, i) => i > 0)
+      .map((a) => a * (r.time - a));
+  }
   const [time, distance] = f
     .split("\n")
     .map((a) => a.split(":")[1])
@@ -31,17 +36,11 @@ fs.readFile("input.txt", "utf-8", (_, f) => {
     },
     { timeStr: "", distStr: "" }
   );
-  const timeB = Number.parseInt(timeStr) 
-  const distanceB = Number.parseInt(distStr) 
-  const dist =  getDistances({time: timeB, distance:distanceB})
-  console.log(dist)
-  console.log(dist.filter((d) => d > distanceB).length);
-
+  const timeB = Number.parseInt(timeStr);
+  const distanceB = Number.parseInt(distStr);
+  const partB = getDistances({ time: timeB, distance: distanceB }).filter(
+    (d) => d > distanceB
+  ).length;
+  console.log(partB);
   console.log(partA);
 });
-function getDistances(r) {
-    return [...Array(r.time - 1).keys()]
-        .filter((_, i) => i > 0)
-        .map((a) => a * (r.time - a));
-}
-
